@@ -2,191 +2,187 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>港保通 v4.1 - 安全記憶版</title>
-    <script src="https://unpkg.com/pinyin-pro"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>維港運動日誌</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#008577">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <style>
-        body { font-family: -apple-system, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; color: #333; }
-        .header { background-color: #2980b9; color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .header h1 { margin: 0; font-size: 20px; }
-        .version { font-size: 11px; color: #ecf0f1; margin-top: 3px; }
-        .container { padding: 15px; padding-bottom: 30px; }
-        .card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .card h2 { margin-top: 0; font-size: 16px; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 8px; margin-bottom: 12px;}
+        :root { --android-teal: #008577; --android-pink: #D81B60; }
+        body { background-color: #f4f7f6; font-family: 'Roboto', sans-serif; padding-bottom: 30px; margin: 0; }
         
-        input, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; box-sizing: border-box; background-color: #fafafa; }
-        input:focus, textarea:focus { outline: none; border-color: #2980b9; background-color: #fff; }
-        textarea { height: 80px; resize: none; }
-        
-        .btn { width: 100%; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
-        .btn:active { transform: scale(0.98); opacity: 0.9; }
-        .btn-ai { background-color: #8e44ad; display: flex; align-items: center; justify-content: center; gap: 8px;}
-        .btn-speak { background-color: #27ae60; }
-        .btn-mic { background-color: #e74c3c; }
-        
-        .result-display { font-size: 22px; line-height: 2.5; padding: 15px; background: #fffde7; border-radius: 8px; min-height: 80px; text-align: center; margin-bottom: 15px; border: 2px solid #f1c40f; }
-        ruby { ruby-position: over; margin: 0 2px; }
-        rt { font-size: 12px; color: #d35400; font-family: "Courier New", Courier, monospace;}
-        
-        .feedback { font-size: 14px; padding: 12px; background: #e8f8f5; border-radius: 8px; text-align: center; color: #16a085; font-weight: bold; border: 1px dashed #1abc9c;}
-        .loading { display: none; text-align: center; color: #8e44ad; font-size: 14px; margin-bottom: 10px; font-weight: bold;}
-        .saved-badge { font-size: 12px; color: #27ae60; display: none; margin-bottom: 10px; text-align: center; font-weight: bold;}
+        .app-bar { 
+            background-color: var(--android-teal); 
+            color: white; padding: 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .card { margin: 12px; border: none; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); background: white; overflow: hidden; }
+
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; padding: 10px; }
+        .cal-head { font-size: 0.75rem; color: #999; font-weight: 500; padding-bottom: 8px; }
+        .cal-date { 
+            height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            border-radius: 12px; position: relative; font-size: 0.95rem; transition: 0.2s;
+        }
+        .cal-date.today { color: var(--android-teal); font-weight: bold; text-decoration: underline; }
+        .cal-date.selected { background-color: #e0f2f1; color: var(--android-teal); font-weight: bold; }
+        .dot::after { content: '●'; color: var(--android-pink); font-size: 8px; position: absolute; bottom: 4px; }
+
+        .chip-box { padding: 10px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .exercise-chip { padding: 8px 16px; border: 1px solid #ddd; border-radius: 25px; font-size: 0.9rem; background: #fff; }
+        .exercise-chip.active { background: var(--android-teal); color: #fff; border-color: var(--android-teal); }
+
+        .btn-plus { background: var(--android-pink); color: white; width: 36px; height: 36px; border-radius: 50%; border: none; font-size: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .detail-area { padding: 15px; border-top: 1px solid #f0f0f0; background: #fafafa; }
+        .history-tag { display: inline-block; background: #e9ecef; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; margin: 0 5px 5px 0; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🚀 港保通 AI 訓練台</h1>
-        <div class="version">Version: 4.1.0 | 安全記憶版</div>
+
+<div class="app-bar">
+    <span id="monthYearText">載入中...</span>
+    <select id="monthPicker" class="form-select form-select-sm" style="width:auto; background:rgba(255,255,255,0.2); color:white; border:none;" onchange="updateCalendarView()"></select>
+</div>
+
+<div class="card">
+    <div class="calendar-grid">
+        <div class="cal-head">日</div><div class="cal-head">一</div><div class="cal-head">二</div>
+        <div class="cal-head">三</div><div class="cal-head">四</div><div class="cal-head">五</div>
+        <div class="cal-head">六</div>
     </div>
+    <div id="calendarBody" class="calendar-grid"></div>
+</div>
 
-    <div class="container">
-        
-        <div class="card" style="background-color: #fdfefe; border-left: 4px solid #8e44ad;">
-            <h2 style="font-size: 14px; color: #7f8c8d; border:none; margin-bottom:5px;">🔑 1. API Key (手機安全儲存)</h2>
-            <input type="password" id="apiKey" placeholder="貼上你的 API Key (只需貼一次)">
-            <div id="savedBadge" class="saved-badge">✅ 已自動載入你之前儲存的 Key</div>
-        </div>
-
-        <div class="card">
-            <h2>💬 2. 輸入廣東話推銷話術</h2>
-            <textarea id="inputText" placeholder="例：呢份單供斷之後，啲錢可以滾存留俾下一代..."></textarea>
-            <button class="btn btn-ai" id="translateBtn" onclick="translateWithGemini()">✨ AI 智能翻譯並生成拼音</button>
-            <div class="loading" id="loadingText">🧠 Gemini 正在思考與翻譯中，請稍候...</div>
-        </div>
-
-        <div class="card">
-            <h2>🎓 3. 學習與評測</h2>
-            <div id="resultBox" class="result-display">AI 翻譯結果將顯示在這裡...</div>
-            <button class="btn btn-speak" onclick="playTranslation()">🔊 聽 AI 標準發音</button>
-            <button class="btn btn-mic" id="micBtn" onclick="startCorrection()">🎤 跟我讀一遍 (AI 收音校對)</button>
-            <div id="feedbackResult" class="feedback">發音校對結果...</div>
-        </div>
-
+<div class="card">
+    <div class="p-3 d-flex justify-content-between align-items-center" style="background:#f1f8f7">
+        <strong id="displayDate" style="color: #00695c;">請選擇日期</strong>
+        <button onclick="addUserProject()" class="btn-plus">+</button>
     </div>
+    <div class="chip-box" id="projectList"></div>
+    <div class="p-3">
+        <button onclick="handleSave()" class="btn btn-primary w-100" style="background:var(--android-teal); border:none; padding:12px; border-radius:10px;">儲存紀錄</button>
+    </div>
+    <div id="dayInfo" class="detail-area" style="display:none;">
+        <div style="font-size:0.8rem; color:#888; margin-bottom:8px;">當日運動：</div>
+        <div id="tagContainer"></div>
+    </div>
+</div>
 
-    <script>
-        const { pinyin } = pinyinPro;
-        let currentTranslatedText = "";
+<div class="text-center mt-2">
+    <button onclick="resetData()" class="btn btn-link btn-sm text-muted" style="text-decoration:none;">清除所有紀錄</button>
+</div>
 
-        // 頁面載入時，自動從手機讀取之前存好的 API Key
-        document.addEventListener("DOMContentLoaded", () => {
-            const savedKey = localStorage.getItem('gemini_api_key');
-            if (savedKey) {
-                document.getElementById('apiKey').value = savedKey;
-                document.getElementById('savedBadge').style.display = 'block';
-            }
-        });
+<script>
+    const DB_NAME = 'workout_harbor_v6';
+    const PROJ_NAME = 'workout_v6_projects';
+    let historyData = JSON.parse(localStorage.getItem(DB_NAME)) || {};
+    let myProjects = JSON.parse(localStorage.getItem(PROJ_NAME)) || ["跑步", "Sit-up", "啞鈴"];
+    let selectedDate = null;
+    let currentViewDate = new Date();
+    let activeSelection = new Set();
 
-        async function translateWithGemini() {
-            const apiKeyInput = document.getElementById('apiKey').value.trim();
-            const inputText = document.getElementById('inputText').value.trim();
-            const resultBox = document.getElementById('resultBox');
-            const loadingText = document.getElementById('loadingText');
-            const translateBtn = document.getElementById('translateBtn');
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
+    }
 
-            if (!apiKeyInput) return alert("請先在上方貼上你的 Gemini API Key！");
-            if (!inputText) return alert("請輸入需要翻譯的廣東話！");
+    window.onload = () => {
+        initPicker();
+        renderCalendar();
+        renderProjects();
+    };
 
-            // 成功獲取 Key 後，安全地儲存在手機本地
-            localStorage.setItem('gemini_api_key', apiKeyInput);
-            document.getElementById('savedBadge').style.display = 'block';
-
-            loadingText.style.display = "block";
-            translateBtn.disabled = true;
-            translateBtn.style.opacity = "0.6";
-            resultBox.innerHTML = "";
-
-            const prompt = `你是一個專業的普通話保險教練。請將以下【香港粵語/口語】翻譯成【最地道、具親和力、專業的內地保險普通話書面語】。
-            規則：
-            1. 替換掉所有香港專用語（如：危疾改為重疾，供斷改為交清，理賠改為理賠等）。
-            2. 語氣要專業得體，適合面對內地高淨值客戶。
-            3. 絕對只輸出翻譯後的純文字，不要加任何解釋、引號或標點符號外的內容。
-            需要翻譯的文字：\n${inputText}`;
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKeyInput}`;
-            const requestBody = { contents: [{ parts: [{ text: prompt }] }] };
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody)
-                });
-
-                if (!response.ok) throw new Error("API 請求失敗，請檢查 API Key 是否正確。");
-
-                const data = await response.json();
-                currentTranslatedText = data.candidates[0].content.parts[0].text.trim();
-
-                const htmlResult = pinyin(currentTranslatedText, { type: 'string', type: 'html' });
-                resultBox.innerHTML = htmlResult;
-
-            } catch (error) {
-                alert("發生錯誤：" + error.message);
-                resultBox.innerHTML = "翻譯失敗，請檢查網絡或 API Key。";
-            } finally {
-                loadingText.style.display = "none";
-                translateBtn.disabled = false;
-                translateBtn.style.opacity = "1";
-            }
+    function initPicker() {
+        const picker = document.getElementById('monthPicker');
+        for (let i = 0; i < 6; i++) {
+            let d = new Date();
+            d.setMonth(d.getMonth() - i);
+            picker.add(new Option(`${d.getFullYear()}年 ${d.getMonth() + 1}月`, `${d.getFullYear()}-${d.getMonth()}`));
         }
+    }
 
-        function playTranslation() {
-            if(!currentTranslatedText) return alert("請先進行翻譯！");
-            const utterance = new SpeechSynthesisUtterance(currentTranslatedText);
-            utterance.lang = 'zh-CN';
-            utterance.rate = 0.85; 
-            window.speechSynthesis.speak(utterance);
+    function updateCalendarView() {
+        const [y, m] = document.getElementById('monthPicker').value.split('-');
+        currentViewDate = new Date(y, m, 1);
+        renderCalendar();
+    }
+
+    function renderCalendar() {
+        const body = document.getElementById('calendarBody');
+        const monthYearLabel = document.getElementById('monthYearText');
+        body.innerHTML = '';
+        const year = currentViewDate.getFullYear();
+        const month = currentViewDate.getMonth();
+        monthYearLabel.innerText = `${year}年 ${month + 1}月`;
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const todayStr = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}`;
+
+        for (let i = 0; i < firstDay; i++) body.innerHTML += '<div></div>';
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateStr = `${year}-${month + 1}-${d}`;
+            body.innerHTML += `<div class="cal-date ${dateStr === todayStr ? 'today' : ''} ${dateStr === selectedDate ? 'selected' : ''} ${historyData[dateStr] ? 'dot' : ''}" onclick="onDateClick('${dateStr}')">${d}</div>`;
         }
+    }
 
-        function startCorrection() {
-            if (!currentTranslatedText) return alert("請先進行翻譯！");
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                return alert("你的瀏覽器不支持語音識別，請使用 Chrome 瀏覽器。");
-            }
+    function onDateClick(dateStr) {
+        selectedDate = dateStr;
+        const [y, m, d] = dateStr.split('-');
+        const dayNames = ["日", "一", "二", "三", "四", "五", "六"];
+        document.getElementById('displayDate').innerText = `${m}月${d}日 (星期${dayNames[new Date(y, m-1, d).getDay()]})`;
+        const info = document.getElementById('dayInfo');
+        const tags = document.getElementById('tagContainer');
+        if (historyData[dateStr]) {
+            info.style.display = 'block';
+            tags.innerHTML = historyData[dateStr].map(t => `<span class="history-tag">${t}</span>`).join('');
+        } else { info.style.display = 'none'; }
+        renderCalendar();
+    }
 
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const recognition = new SpeechRecognition();
-            recognition.lang = "zh-CN";
-            
-            const micBtn = document.getElementById('micBtn');
-            const feedbackResult = document.getElementById('feedbackResult');
+    function renderProjects() {
+        const list = document.getElementById('projectList');
+        list.innerHTML = myProjects.map(p => `<div class="exercise-chip ${activeSelection.has(p) ? 'active' : ''}" onclick="toggleProject(this, '${p}')">${p}</div>`).join('');
+    }
 
-            recognition.onstart = () => {
-                micBtn.innerHTML = "🔴 正在聆聽，請對著手機朗讀...";
-                micBtn.style.backgroundColor = "#c0392b";
-                feedbackResult.innerHTML = "等待發音...";
-            };
+    function toggleProject(el, name) {
+        activeSelection.has(name) ? activeSelection.delete(name) : activeSelection.add(name);
+        renderProjects();
+    }
 
-            recognition.onresult = (event) => {
-                const userSpeech = event.results[0][0].transcript;
-                const cleanUserSpeech = userSpeech.replace(/[.,!?，。！？]/g, '');
-                const cleanTargetText = currentTranslatedText.replace(/[.,!?，。！？]/g, '');
-
-                let feedbackHtml = `系統聽到你說：<br><span style="color:#e67e22; font-size:16px;">${userSpeech}</span><br><br>`;
-                
-                if (cleanUserSpeech === cleanTargetText) {
-                    feedbackHtml += "✅ <span style='color:#27ae60;'>太棒了！你的發音和字詞完全精準！</span>";
-                } else {
-                    feedbackHtml += "❌ <span style='color:#e74c3c;'>有幾個字音可能不太準確，或者讀漏了，請點擊「聽標準發音」再試一次！</span>";
-                }
-                
-                feedbackResult.innerHTML = feedbackHtml;
-                resetMicBtn();
-            };
-
-            recognition.onerror = () => {
-                feedbackResult.innerHTML = "收音失敗，請允許麥克風權限或再大聲點試試。";
-                resetMicBtn();
-            };
-
-            recognition.start();
-
-            function resetMicBtn() {
-                micBtn.innerHTML = "🎤 跟我讀一遍 (AI 收音校對)";
-                micBtn.style.backgroundColor = "#e74c3c";
-            }
+    function addUserProject() {
+        const name = prompt("新增運動：");
+        if (name && !myProjects.includes(name)) {
+            myProjects.push(name);
+            localStorage.setItem(PROJ_NAME, JSON.stringify(myProjects));
+            renderProjects();
         }
-    </script>
+    }
+
+    function handleSave() {
+        if (!selectedDate || activeSelection.size === 0) return alert("請選擇日期與項目");
+        historyData[selectedDate] = Array.from(activeSelection);
+        localStorage.setItem(DB_NAME, JSON.stringify(historyData));
+        activeSelection.clear();
+        renderProjects();
+        onDateClick(selectedDate);
+        alert("儲存成功！");
+    }
+
+    function resetData() {
+        if (confirm("確定刪除所有紀錄？")) {
+            localStorage.removeItem(DB_NAME);
+            historyData = {};
+            renderCalendar();
+        }
+    }
+</script>
 </body>
 </html>
